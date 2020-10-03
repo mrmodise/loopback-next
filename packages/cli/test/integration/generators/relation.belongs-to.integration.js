@@ -20,12 +20,12 @@ const CONTROLLER_PATH = 'src/controllers';
 const REPOSITORY_APP_PATH = 'src/repositories';
 const sandbox = new TestSandbox(path.resolve(__dirname, '../.sandbox'));
 
-const sourceFileName = ['order.model.ts', 'order-class.model.ts'];
+const sourceFileName = 'order.model.ts';
 const controllerFileName = [
   'order-customer.controller.ts',
   'order-class-customer-class.controller.ts',
 ];
-const repositoryFileName = ['order.repository.ts', 'order-class.repository.ts'];
+const repositoryFileName = 'order.repository.ts';
 
 describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
   this.timeout(30000);
@@ -136,7 +136,7 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
         const sourceFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          sourceFileName[i],
+          sourceFileName,
         );
 
         assert.file(sourceFilePath);
@@ -178,7 +178,7 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
         const sourceFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          sourceFileName[i],
+          sourceFileName,
         );
 
         assert.file(sourceFilePath);
@@ -288,7 +288,7 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
           const sourceFilePath = path.join(
             sandbox.path,
             REPOSITORY_APP_PATH,
-            repositoryFileName[i],
+            repositoryFileName,
           );
 
           assert.file(sourceFilePath);

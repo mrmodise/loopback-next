@@ -8,17 +8,26 @@
 'use strict';
 
 exports[`lb4 relation checks generated source class repository answers {"relationType":"belongsTo","sourceModel":"Order","destinationModel":"Customer","relationName":"custom_name","registerInclusionResolver":false} generates Order repository file with different inputs 1`] = `
-import {DefaultCrudRepository} from '@loopback/repository';
-import {OrderClass} from '../models';
-import {MyDBDataSource} from '../datasources';
-import {inject} from '@loopback/core';
+import {DefaultCrudRepository, BelongsToAccessor, repository} from '@loopback/repository';
+import {Order, Customer} from '../models';
+import {DbDataSource} from '../datasources';
+import {inject, Getter} from '@loopback/core';
+import {CustomerRepository} from './customer.repository';
 
-export class OrderClassRepository extends DefaultCrudRepository<
-  OrderClass,
-  typeof OrderClass.prototype.orderNumber
+export class OrderRepository extends DefaultCrudRepository<
+  Order,
+  typeof Order.prototype.id
 > {
-  constructor(@inject('datasources.myDB') dataSource: MyDBDataSource) {
-    super(OrderClass, dataSource);
+  public readonly myCustomer: BelongsToAccessor<
+    Customer,
+    typeof Order.prototype.id
+  >;
+
+  public readonly custom_name: BelongsToAccessor<Customer, typeof Order.prototype.id>;
+
+  constructor(@inject('datasources.db') dataSource: DbDataSource, @repository.getter('CustomerRepository') protected customerRepositoryGetter: Getter<CustomerRepository>,) {
+    super(Order, dataSource);
+    this.custom_name = this.createBelongsToAccessorFor('custom_name', customerRepositoryGetter,);
   }
 }
 
