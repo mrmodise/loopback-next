@@ -21,10 +21,7 @@ const REPOSITORY_APP_PATH = 'src/repositories';
 const sandbox = new TestSandbox(path.resolve(__dirname, '../.sandbox'));
 
 const sourceFileName = 'order.model.ts';
-const controllerFileName = [
-  'order-customer.controller.ts',
-  'order-class-customer-class.controller.ts',
-];
+const controllerFileName = 'order-customer.controller.ts';
 const repositoryFileName = 'order.repository.ts';
 
 describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
@@ -196,19 +193,19 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
       },
       {
         relationType: 'belongsTo',
-        sourceModel: 'OrderClass',
-        destinationModel: 'CustomerClass',
+        sourceModel: 'Order',
+        destinationModel: 'Customer',
         relationName: 'my_customer',
       },
     ];
 
-    promptArray.forEach(function (multiItemPrompt, i) {
+    promptArray.forEach(function (multiItemPrompt) {
       describe('answers ' + JSON.stringify(multiItemPrompt), () => {
-        suite(multiItemPrompt, i);
+        suite(multiItemPrompt);
       });
     });
 
-    function suite(multiItemPrompt, i) {
+    function suite(multiItemPrompt) {
       before(async function runGeneratorWithAnswers() {
         await sandbox.reset();
         await testUtils
@@ -225,7 +222,7 @@ describe('lb4 relation', /** @this {Mocha.Suite} */ function () {
         const filePath = path.join(
           sandbox.path,
           CONTROLLER_PATH,
-          controllerFileName[i],
+          controllerFileName,
         );
         assert.file(filePath);
         expectFileToMatchSnapshot(filePath);

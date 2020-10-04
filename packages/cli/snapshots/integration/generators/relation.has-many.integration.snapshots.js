@@ -8,17 +8,22 @@
 'use strict';
 
 exports[`lb4 relation HasMany checks generated source class repository answers {"relationType":"hasMany","sourceModel":"Customer","destinationModel":"Order","relationName":"custom_name","registerInclusionResolver":false} generates Customer repository file with different inputs 1`] = `
-import {DefaultCrudRepository} from '@loopback/repository';
-import {CustomerClass} from '../models';
-import {MyDBDataSource} from '../datasources';
-import {inject} from '@loopback/core';
+import {DefaultCrudRepository, repository, HasManyRepositoryFactory} from '@loopback/repository';
+import {Customer, Order} from '../models';
+import {DbDataSource} from '../datasources';
+import {inject, Getter} from '@loopback/core';
+import {OrderRepository} from './order.repository';
 
-export class CustomerClassRepository extends DefaultCrudRepository<
-  CustomerClass,
-  typeof CustomerClass.prototype.custNumber
+export class CustomerRepository extends DefaultCrudRepository<
+  Customer,
+  typeof Customer.prototype.id
 > {
-  constructor(@inject('datasources.myDB') dataSource: MyDBDataSource) {
-    super(CustomerClass, dataSource);
+
+  public readonly custom_name: HasManyRepositoryFactory<Order, typeof Customer.prototype.id>;
+
+  constructor(@inject('datasources.db') dataSource: DbDataSource, @repository.getter('OrderRepository') protected orderRepositoryGetter: Getter<OrderRepository>,) {
+    super(Customer, dataSource);
+    this.custom_name = this.createHasManyRepositoryFactoryFor('custom_name', orderRepositoryGetter,);
   }
 }
 
@@ -43,6 +48,121 @@ export class CustomerRepository extends DefaultCrudRepository<
     super(Customer, dataSource);
     this.orders = this.createHasManyRepositoryFactoryFor('orders', orderRepositoryGetter,);
     this.registerInclusionResolver('orders', this.orders.inclusionResolver);
+  }
+}
+
+`;
+
+
+exports[`lb4 relation HasMany checks if the controller file created  answers {"relationType":"hasMany","sourceModel":"Customer","destinationModel":"Order","relationName":"myOrders"} checks controller content with hasMany relation 1`] = `
+import {
+  Count,
+  CountSchema,
+  Filter,
+  repository,
+  Where,
+} from '@loopback/repository';
+import {
+  del,
+  get,
+  getModelSchemaRef,
+  getWhereSchemaFor,
+  param,
+  patch,
+  post,
+  requestBody,
+} from '@loopback/rest';
+import {
+  Customer,
+  Order,
+} from '../models';
+import {CustomerRepository} from '../repositories';
+
+export class CustomerOrderController {
+  constructor(
+    @repository(CustomerRepository) protected customerRepository: CustomerRepository,
+  ) { }
+
+  @get('/customers/{id}/orders', {
+    responses: {
+      '200': {
+        description: 'Array of Customer has many Order',
+        content: {
+          'application/json': {
+            schema: {type: 'array', items: getModelSchemaRef(Order)},
+          },
+        },
+      },
+    },
+  })
+  async find(
+    @param.path.number('id') id: number,
+    @param.query.object('filter') filter?: Filter<Order>,
+  ): Promise<Order[]> {
+    return this.customerRepository.myOrders(id).find(filter);
+  }
+
+  @post('/customers/{id}/orders', {
+    responses: {
+      '200': {
+        description: 'Customer model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Order)}},
+      },
+    },
+  })
+  async create(
+    @param.path.number('id') id: typeof Customer.prototype.id,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Order, {
+            title: 'NewOrderInCustomer',
+            exclude: ['id'],
+            optional: ['customerId']
+          }),
+        },
+      },
+    }) order: Omit<Order, 'id'>,
+  ): Promise<Order> {
+    return this.customerRepository.myOrders(id).create(order);
+  }
+
+  @patch('/customers/{id}/orders', {
+    responses: {
+      '200': {
+        description: 'Customer.Order PATCH success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async patch(
+    @param.path.number('id') id: number,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Order, {partial: true}),
+        },
+      },
+    })
+    order: Partial<Order>,
+    @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
+  ): Promise<Count> {
+    return this.customerRepository.myOrders(id).patch(order, where);
+  }
+
+  @del('/customers/{id}/orders', {
+    responses: {
+      '200': {
+        description: 'Customer.Order DELETE success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async delete(
+    @param.path.number('id') id: number,
+    @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
+  ): Promise<Count> {
+    return this.customerRepository.myOrders(id).delete(where);
   }
 }
 
@@ -158,121 +278,6 @@ export class CustomerOrderController {
     @param.query.object('where', getWhereSchemaFor(Order)) where?: Where<Order>,
   ): Promise<Count> {
     return this.customerRepository.orders(id).delete(where);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasMany checks if the controller file created  answers {"relationType":"hasMany","sourceModel":"CustomerClass","destinationModel":"OrderClass","relationName":"myOrders"} checks controller content with hasMany relation 1`] = `
-import {
-  Count,
-  CountSchema,
-  Filter,
-  repository,
-  Where,
-} from '@loopback/repository';
-import {
-  del,
-  get,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  param,
-  patch,
-  post,
-  requestBody,
-} from '@loopback/rest';
-import {
-  CustomerClass,
-  OrderClass,
-} from '../models';
-import {CustomerClassRepository} from '../repositories';
-
-export class CustomerClassOrderClassController {
-  constructor(
-    @repository(CustomerClassRepository) protected customerClassRepository: CustomerClassRepository,
-  ) { }
-
-  @get('/customer-classes/{id}/order-classes', {
-    responses: {
-      '200': {
-        description: 'Array of CustomerClass has many OrderClass',
-        content: {
-          'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(OrderClass)},
-          },
-        },
-      },
-    },
-  })
-  async find(
-    @param.path.number('id') id: number,
-    @param.query.object('filter') filter?: Filter<OrderClass>,
-  ): Promise<OrderClass[]> {
-    return this.customerClassRepository.myOrders(id).find(filter);
-  }
-
-  @post('/customer-classes/{id}/order-classes', {
-    responses: {
-      '200': {
-        description: 'CustomerClass model instance',
-        content: {'application/json': {schema: getModelSchemaRef(OrderClass)}},
-      },
-    },
-  })
-  async create(
-    @param.path.number('id') id: typeof CustomerClass.prototype.custNumber,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(OrderClass, {
-            title: 'NewOrderClassInCustomerClass',
-            exclude: ['orderNumber'],
-            optional: ['customerClassId']
-          }),
-        },
-      },
-    }) orderClass: Omit<OrderClass, 'orderNumber'>,
-  ): Promise<OrderClass> {
-    return this.customerClassRepository.myOrders(id).create(orderClass);
-  }
-
-  @patch('/customer-classes/{id}/order-classes', {
-    responses: {
-      '200': {
-        description: 'CustomerClass.OrderClass PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async patch(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(OrderClass, {partial: true}),
-        },
-      },
-    })
-    orderClass: Partial<OrderClass>,
-    @param.query.object('where', getWhereSchemaFor(OrderClass)) where?: Where<OrderClass>,
-  ): Promise<Count> {
-    return this.customerClassRepository.myOrders(id).patch(orderClass, where);
-  }
-
-  @del('/customer-classes/{id}/order-classes', {
-    responses: {
-      '200': {
-        description: 'CustomerClass.OrderClass DELETE success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async delete(
-    @param.path.number('id') id: number,
-    @param.query.object('where', getWhereSchemaFor(OrderClass)) where?: Where<OrderClass>,
-  ): Promise<Count> {
-    return this.customerClassRepository.myOrders(id).delete(where);
   }
 }
 

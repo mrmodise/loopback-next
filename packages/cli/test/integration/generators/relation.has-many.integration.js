@@ -21,16 +21,10 @@ const REPOSITORY_APP_PATH = 'src/repositories';
 
 const sandbox = new TestSandbox(path.resolve(__dirname, '../.sandbox'));
 
-const sourceFileName = ['customer.model.ts', 'customer-class.model.ts'];
-const targetFileName = ['order.model.ts', 'order-class.model.ts'];
-const controllerFileName = [
-  'customer-order.controller.ts',
-  'customer-class-order-class.controller.ts',
-];
-const repositoryFileName = [
-  'customer.repository.ts',
-  'customer-class.repository.ts',
-];
+const sourceFileName = 'customer.model.ts';
+const targetFileName = 'order.model.ts';
+const controllerFileName = 'customer-order.controller.ts';
+const repositoryFileName = 'customer.repository.ts';
 
 describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
   this.timeout(30000);
@@ -127,13 +121,13 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
       },
     ];
 
-    promptArray.forEach(function (multiItemPrompt, i) {
+    promptArray.forEach(function (multiItemPrompt) {
       describe('answers ' + JSON.stringify(multiItemPrompt), () => {
-        suite(multiItemPrompt, i);
+        suite(multiItemPrompt);
       });
     });
 
-    function suite(multiItemPrompt, i) {
+    function suite(multiItemPrompt) {
       before(async function runGeneratorWithAnswers() {
         await sandbox.reset();
         await testUtils
@@ -150,7 +144,7 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
         const sourceFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          sourceFileName[i],
+          sourceFileName,
         );
         assert.file(sourceFilePath);
         expectFileToMatchSnapshot(sourceFilePath);
@@ -168,13 +162,13 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
       },
     ];
 
-    promptArray.forEach(function (multiItemPrompt, i) {
+    promptArray.forEach(function (multiItemPrompt) {
       describe('answers ' + JSON.stringify(multiItemPrompt), () => {
-        suite(multiItemPrompt, i);
+        suite(multiItemPrompt);
       });
     });
 
-    function suite(multiItemPrompt, i) {
+    function suite(multiItemPrompt) {
       before(async function runGeneratorWithAnswers() {
         await sandbox.reset();
         await testUtils
@@ -191,12 +185,12 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
         const sourceFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          sourceFileName[i],
+          sourceFileName,
         );
         const targetFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          targetFileName[i],
+          targetFileName,
         );
 
         assert.file(sourceFilePath);
@@ -217,13 +211,13 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
       },
     ];
 
-    promptArray.forEach(function (multiItemPrompt, i) {
+    promptArray.forEach(function (multiItemPrompt) {
       describe('answers ' + JSON.stringify(multiItemPrompt), () => {
-        suite(multiItemPrompt, i);
+        suite(multiItemPrompt);
       });
     });
 
-    function suite(multiItemPrompt, i) {
+    function suite(multiItemPrompt) {
       before(async function runGeneratorWithAnswers() {
         await sandbox.reset();
         await testUtils
@@ -240,12 +234,12 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
         const sourceFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          sourceFileName[i],
+          sourceFileName,
         );
         const targetFilePath = path.join(
           sandbox.path,
           MODEL_APP_PATH,
-          targetFileName[i],
+          targetFileName,
         );
 
         assert.file(sourceFilePath);
@@ -265,19 +259,19 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
       },
       {
         relationType: 'hasMany',
-        sourceModel: 'CustomerClass',
-        destinationModel: 'OrderClass',
+        sourceModel: 'Customer',
+        destinationModel: 'Order',
         relationName: 'myOrders',
       },
     ];
 
-    promptArray.forEach(function (multiItemPrompt, i) {
+    promptArray.forEach(function (multiItemPrompt) {
       describe('answers ' + JSON.stringify(multiItemPrompt), () => {
-        suite(multiItemPrompt, i);
+        suite(multiItemPrompt);
       });
     });
 
-    function suite(multiItemPrompt, i) {
+    function suite(multiItemPrompt) {
       before(async function runGeneratorWithAnswers() {
         await sandbox.reset();
         await testUtils
@@ -294,7 +288,7 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
         const filePath = path.join(
           sandbox.path,
           CONTROLLER_PATH,
-          controllerFileName[i],
+          controllerFileName,
         );
         assert.file(filePath);
         expectFileToMatchSnapshot(filePath);
@@ -346,7 +340,7 @@ describe('lb4 relation HasMany', /** @this {Mocha.Suite} */ function () {
           const sourceFilePath = path.join(
             sandbox.path,
             REPOSITORY_APP_PATH,
-            repositoryFileName[i],
+            repositoryFileName,
           );
 
           expectFileToMatchSnapshot(sourceFilePath);

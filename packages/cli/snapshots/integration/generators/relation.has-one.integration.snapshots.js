@@ -54,6 +54,121 @@ export class CustomerRepository extends DefaultCrudRepository<
 `;
 
 
+exports[`lb4 relation HasOne checks if the controller file created  answers {"relationType":"hasOne","sourceModel":"Customer","destinationModel":"Address","relationName":"myAddress"} checks controller content with hasOne relation 1`] = `
+import {
+  Count,
+  CountSchema,
+  Filter,
+  repository,
+  Where,
+} from '@loopback/repository';
+import {
+  del,
+  get,
+  getModelSchemaRef,
+  getWhereSchemaFor,
+  param,
+  patch,
+  post,
+  requestBody,
+} from '@loopback/rest';
+import {
+  Customer,
+  Address,
+} from '../models';
+import {CustomerRepository} from '../repositories';
+
+export class CustomerAddressController {
+  constructor(
+    @repository(CustomerRepository) protected customerRepository: CustomerRepository,
+  ) { }
+
+  @get('/customers/{id}/address', {
+    responses: {
+      '200': {
+        description: 'Customer has one Address',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Address),
+          },
+        },
+      },
+    },
+  })
+  async get(
+    @param.path.number('id') id: number,
+    @param.query.object('filter') filter?: Filter<Address>,
+  ): Promise<Address> {
+    return this.customerRepository.myAddress(id).get(filter);
+  }
+
+  @post('/customers/{id}/address', {
+    responses: {
+      '200': {
+        description: 'Customer model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Address)}},
+      },
+    },
+  })
+  async create(
+    @param.path.number('id') id: typeof Customer.prototype.id,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Address, {
+            title: 'NewAddressInCustomer',
+            exclude: ['id'],
+            optional: ['customerId']
+          }),
+        },
+      },
+    }) address: Omit<Address, 'id'>,
+  ): Promise<Address> {
+    return this.customerRepository.myAddress(id).create(address);
+  }
+
+  @patch('/customers/{id}/address', {
+    responses: {
+      '200': {
+        description: 'Customer.Address PATCH success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async patch(
+    @param.path.number('id') id: number,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Address, {partial: true}),
+        },
+      },
+    })
+    address: Partial<Address>,
+    @param.query.object('where', getWhereSchemaFor(Address)) where?: Where<Address>,
+  ): Promise<Count> {
+    return this.customerRepository.myAddress(id).patch(address, where);
+  }
+
+  @del('/customers/{id}/address', {
+    responses: {
+      '200': {
+        description: 'Customer.Address DELETE success count',
+        content: {'application/json': {schema: CountSchema}},
+      },
+    },
+  })
+  async delete(
+    @param.path.number('id') id: number,
+    @param.query.object('where', getWhereSchemaFor(Address)) where?: Where<Address>,
+  ): Promise<Count> {
+    return this.customerRepository.myAddress(id).delete(where);
+  }
+}
+
+`;
+
+
 exports[`lb4 relation HasOne checks if the controller file created  answers {"relationType":"hasOne","sourceModel":"Customer","destinationModel":"Address"} checks controller content with hasOne relation 1`] = `
 import {
   Count,
@@ -163,121 +278,6 @@ export class CustomerAddressController {
     @param.query.object('where', getWhereSchemaFor(Address)) where?: Where<Address>,
   ): Promise<Count> {
     return this.customerRepository.address(id).delete(where);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation HasOne checks if the controller file created  answers {"relationType":"hasOne","sourceModel":"CustomerClass","destinationModel":"AddressClass","relationName":"myAddress"} checks controller content with hasOne relation 1`] = `
-import {
-  Count,
-  CountSchema,
-  Filter,
-  repository,
-  Where,
-} from '@loopback/repository';
-import {
-  del,
-  get,
-  getModelSchemaRef,
-  getWhereSchemaFor,
-  param,
-  patch,
-  post,
-  requestBody,
-} from '@loopback/rest';
-import {
-  CustomerClass,
-  AddressClass,
-} from '../models';
-import {CustomerClassRepository} from '../repositories';
-
-export class CustomerClassAddressClassController {
-  constructor(
-    @repository(CustomerClassRepository) protected customerClassRepository: CustomerClassRepository,
-  ) { }
-
-  @get('/customer-classes/{id}/address-class', {
-    responses: {
-      '200': {
-        description: 'CustomerClass has one AddressClass',
-        content: {
-          'application/json': {
-            schema: getModelSchemaRef(AddressClass),
-          },
-        },
-      },
-    },
-  })
-  async get(
-    @param.path.number('id') id: number,
-    @param.query.object('filter') filter?: Filter<AddressClass>,
-  ): Promise<AddressClass> {
-    return this.customerClassRepository.myAddress(id).get(filter);
-  }
-
-  @post('/customer-classes/{id}/address-class', {
-    responses: {
-      '200': {
-        description: 'CustomerClass model instance',
-        content: {'application/json': {schema: getModelSchemaRef(AddressClass)}},
-      },
-    },
-  })
-  async create(
-    @param.path.number('id') id: typeof CustomerClass.prototype.custNumber,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(AddressClass, {
-            title: 'NewAddressClassInCustomerClass',
-            exclude: ['addressNumber'],
-            optional: ['customerClassId']
-          }),
-        },
-      },
-    }) addressClass: Omit<AddressClass, 'addressNumber'>,
-  ): Promise<AddressClass> {
-    return this.customerClassRepository.myAddress(id).create(addressClass);
-  }
-
-  @patch('/customer-classes/{id}/address-class', {
-    responses: {
-      '200': {
-        description: 'CustomerClass.AddressClass PATCH success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async patch(
-    @param.path.number('id') id: number,
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(AddressClass, {partial: true}),
-        },
-      },
-    })
-    addressClass: Partial<AddressClass>,
-    @param.query.object('where', getWhereSchemaFor(AddressClass)) where?: Where<AddressClass>,
-  ): Promise<Count> {
-    return this.customerClassRepository.myAddress(id).patch(addressClass, where);
-  }
-
-  @del('/customer-classes/{id}/address-class', {
-    responses: {
-      '200': {
-        description: 'CustomerClass.AddressClass DELETE success count',
-        content: {'application/json': {schema: CountSchema}},
-      },
-    },
-  })
-  async delete(
-    @param.path.number('id') id: number,
-    @param.query.object('where', getWhereSchemaFor(AddressClass)) where?: Where<AddressClass>,
-  ): Promise<Count> {
-    return this.customerClassRepository.myAddress(id).delete(where);
   }
 }
 

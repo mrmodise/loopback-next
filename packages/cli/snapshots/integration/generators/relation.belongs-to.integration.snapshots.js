@@ -62,6 +62,55 @@ export class OrderRepository extends DefaultCrudRepository<
 `;
 
 
+exports[`lb4 relation checks if the controller file created  answers {"relationType":"belongsTo","sourceModel":"Order","destinationModel":"Customer","relationName":"my_customer"} checks controller content with belongsTo relation 1`] = `
+import {
+  repository,
+} from '@loopback/repository';
+import {
+  param,
+  get,
+  getModelSchemaRef,
+} from '@loopback/rest';
+import {
+  Order,
+  Customer,
+} from '../models';
+import {OrderRepository} from '../repositories';
+
+export class OrderCustomerController {
+  constructor(
+    @repository(OrderRepository)
+    public orderRepository: OrderRepository,
+  ) { }
+
+  @get('/orders/{id}/customer', {
+    responses: {
+      '200': {
+        description: 'Customer belonging to Order',
+        content: {
+          'application/json': {
+            schema: {type: 'array', items: getModelSchemaRef(Customer)},
+          },
+        },
+      },
+    },
+  })
+  async getCustomer(
+    @param.path.number('id') id: typeof Order.prototype.id,
+  ): Promise<Customer> {
+    return this.orderRepository.my_customer(id);
+  }
+}
+
+`;
+
+
+exports[`lb4 relation checks if the controller file created  answers {"relationType":"belongsTo","sourceModel":"Order","destinationModel":"Customer","relationName":"my_customer"} the new controller file added to index.ts file 1`] = `
+export * from './order-customer.controller';
+
+`;
+
+
 exports[`lb4 relation checks if the controller file created  answers {"relationType":"belongsTo","sourceModel":"Order","destinationModel":"Customer"} checks controller content with belongsTo relation 1`] = `
 import {
   repository,
@@ -107,55 +156,6 @@ export class OrderCustomerController {
 
 exports[`lb4 relation checks if the controller file created  answers {"relationType":"belongsTo","sourceModel":"Order","destinationModel":"Customer"} the new controller file added to index.ts file 1`] = `
 export * from './order-customer.controller';
-
-`;
-
-
-exports[`lb4 relation checks if the controller file created  answers {"relationType":"belongsTo","sourceModel":"OrderClass","destinationModel":"CustomerClass","relationName":"my_customer"} checks controller content with belongsTo relation 1`] = `
-import {
-  repository,
-} from '@loopback/repository';
-import {
-  param,
-  get,
-  getModelSchemaRef,
-} from '@loopback/rest';
-import {
-  OrderClass,
-  CustomerClass,
-} from '../models';
-import {OrderClassRepository} from '../repositories';
-
-export class OrderClassCustomerClassController {
-  constructor(
-    @repository(OrderClassRepository)
-    public orderClassRepository: OrderClassRepository,
-  ) { }
-
-  @get('/order-classes/{id}/customer-class', {
-    responses: {
-      '200': {
-        description: 'CustomerClass belonging to OrderClass',
-        content: {
-          'application/json': {
-            schema: {type: 'array', items: getModelSchemaRef(CustomerClass)},
-          },
-        },
-      },
-    },
-  })
-  async getCustomerClass(
-    @param.path.number('id') id: typeof OrderClass.prototype.orderNumber,
-  ): Promise<CustomerClass> {
-    return this.orderClassRepository.my_customer(id);
-  }
-}
-
-`;
-
-
-exports[`lb4 relation checks if the controller file created  answers {"relationType":"belongsTo","sourceModel":"OrderClass","destinationModel":"CustomerClass","relationName":"my_customer"} the new controller file added to index.ts file 1`] = `
-export * from './order-class-customer-class.controller';
 
 `;
 
