@@ -110,12 +110,13 @@ export enum BindingScope {
    */
   SINGLETON = 'Singleton',
 
-  /**
+  /*
    * The following scopes are checked against the context hierarchy to find
    * the first matching context for a given scope in the chain. Resolved binding
    * values will be cached and shared on the scoped context. This ensures a
    * binding to have the same value for the scoped context.
    */
+
   /**
    * Application scope
    *
@@ -504,34 +505,8 @@ export class Binding<T = BoundValue> extends EventEmitter {
     }
 
     const options = asResolutionOptions(optionsOrSession);
-    const resolutionCtx = ctx.getResolutionContext(this);
-    switch (this.scope) {
-      case BindingScope.APPLICATION:
-      case BindingScope.SERVER:
-      case BindingScope.REQUEST:
-        if (resolutionCtx == null) {
-          const msg =
-            `Binding "${this.key}" in context "${ctx.name}" cannot` +
-            ` be resolved in scope "${this.scope}"`;
-          if (options.optional) {
-            debug(msg);
-            return undefined;
-          }
-          throw new Error(msg);
-        }
-    }
-
-    const ownerCtx = ctx.getOwnerContext(this.key);
-    if (ownerCtx != null && !ownerCtx.isVisibleTo(resolutionCtx!)) {
-      const msg =
-        `Resolution context "${resolutionCtx?.name}" does not have ` +
-        `visibility to binding "${this.key} (scope:${this.scope})" in context "${ownerCtx.name}"`;
-      if (options.optional) {
-        debug(msg);
-        return undefined;
-      }
-      throw new Error(msg);
-    }
+    const resolutionCtx = this.getResolutionContext(ctx, options);
+    if (resolutionCtx == null) return undefined;
     // First check cached value for non-transient
     if (this._cache) {
       if (this.scope !== BindingScope.TRANSIENT) {
@@ -569,6 +544,43 @@ export class Binding<T = BoundValue> extends EventEmitter {
         resolutionMetadata,
       ),
     );
+  }
+
+  /**
+   * Locate and validate the resolution context
+   * @param ctx - Current context
+   * @param options - Resolution options
+   */
+  private getResolutionContext(ctx: Context, options: ResolutionOptions) {
+    const resolutionCtx = ctx.getResolutionContext(this);
+    switch (this.scope) {
+      case BindingScope.APPLICATION:
+      case BindingScope.SERVER:
+      case BindingScope.REQUEST:
+        if (resolutionCtx == null) {
+          const msg =
+            `Binding "${this.key}" in context "${ctx.name}" cannot` +
+            ` be resolved in scope "${this.scope}"`;
+          if (options.optional) {
+            debug(msg);
+            return undefined;
+          }
+          throw new Error(msg);
+        }
+    }
+
+    const ownerCtx = ctx.getOwnerContext(this.key);
+    if (ownerCtx != null && !ownerCtx.isVisibleTo(resolutionCtx!)) {
+      const msg =
+        `Resolution context "${resolutionCtx?.name}" does not have ` +
+        `visibility to binding "${this.key} (scope:${this.scope})" in context "${ownerCtx.name}"`;
+      if (options.optional) {
+        debug(msg);
+        return undefined;
+      }
+      throw new Error(msg);
+    }
+    return resolutionCtx;
   }
 
   /**
