@@ -39,8 +39,12 @@ jobs:
       - name: Build project
         run: npm run build
       - uses: Yuri6037/Action-FakeTTY@v1.1
-      - name: Run tests
+      - name: Run tests MacOs, Ubuntu
+        if: matrix.os == 'ubuntu-latest' && matrix.os == 'macos-latest'
         run: faketty npm run test:ci
+      - name: Run tests Windows
+        if: matrix.os == 'windows-latest'
+        run npm run test:ci
 
   test-benchmark:
     name: Test Benchmark
