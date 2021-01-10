@@ -20,7 +20,8 @@ jobs:
         include:
           - os: macos-latest
             node-version: 14
-          - os: windows-latest
+          - os: windows-2019
+            kind: test_release
             node-version: 14
       fail-fast: false
     runs-on: ${{ matrix.os }}
@@ -43,7 +44,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.os == 'macos-latest'
         run: faketty npm run test:ci
       - name: Run tests Windows
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2019' && matrix.kind == 'test_release'
         run: npm run test:ci
 
   test-benchmark:
