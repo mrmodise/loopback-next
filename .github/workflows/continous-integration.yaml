@@ -44,7 +44,7 @@ jobs:
         run: faketty npm run test:ci
       - name: Run tests Windows
         if: matrix.os == 'windows-latest'
-        run npm run test:ci
+        run: npm run test:ci
 
   test-benchmark:
     name: Test Benchmark
